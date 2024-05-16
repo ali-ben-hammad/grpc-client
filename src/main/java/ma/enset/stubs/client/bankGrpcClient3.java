@@ -23,6 +23,8 @@ public class bankGrpcClient3 {
                 .build();
 
 
+
+        // the StreamObserver parameter is used to handle the stream of responses
        asyncStub.getCurrencyStream(request, new StreamObserver<Bank.convertCurrencyResponse>() {
                    @Override
                    public void onNext(Bank.convertCurrencyResponse convertCurrencyResponse) {

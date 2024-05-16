@@ -19,7 +19,9 @@ public class bankGrpcClient1
                 .setTo("MAD")
                 .setAmount(100)
                 .build();
-
+// this calls the convert method of the service, by a blocking stub
+// this is why we used the newBlockingStub and only sent one parameter to the convert method
+// no StreamObserver parameter is needed
         Bank.convertCurrencyResponse response = stub.convert(request);
 
         System.out.println(response);

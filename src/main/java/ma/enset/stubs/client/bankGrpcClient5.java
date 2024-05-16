@@ -7,8 +7,10 @@ import ma.enset.stubs.Bank;
 import ma.enset.stubs.bankServiceGrpc;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class bankGrpcClient2 {
+public class bankGrpcClient5 {
     public static void main(String[] args) throws IOException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5555)
                 .usePlaintext()
@@ -22,12 +24,12 @@ public class bankGrpcClient2 {
                 .setAmount(100)
                 .build();
 
-// this differs from the first client by using an asynchronous stub to call the convert method
- // this is why we added the optionalal StreamObserver parameter to the convert method
-        asyncStub.convert(request, new StreamObserver<Bank.convertCurrencyResponse>() {
+
+
+        StreamObserver<Bank.convertCurrencyRequest> performStream = asyncStub.fullStream(new StreamObserver<Bank.convertCurrencyResponse>() {
             @Override
             public void onNext(Bank.convertCurrencyResponse convertCurrencyResponse) {
-                System.out.println("************");
+                System.out.println("****** response *****");
                 System.out.println(convertCurrencyResponse);
                 System.out.println("************");
             }
@@ -38,15 +40,37 @@ public class bankGrpcClient2 {
                 System.out.println("************");
             }
 
-
             @Override
             public void onCompleted() {
                 System.out.println("************");
-                System.out.println("completed");
+                System.out.println("End");
                 System.out.println("************");
             }
-
         });
+
+        // here comes the difference, we are using a timer to send 10 requests
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int count = 0;
+            @Override
+            public void run() {
+                Bank.convertCurrencyRequest request = Bank.convertCurrencyRequest.newBuilder()
+                        .setFrom("USD")
+                        .setTo("MAD")
+                        .setAmount(Math.random()*7101)
+                        .build();
+                performStream.onNext(request);
+                count++;
+                System.out.println("************> "+count+" <************");
+                if(count == 10) {
+                    performStream.onCompleted();
+                    timer.cancel();
+                }
+            }
+        }, 1000, 1000);
+        performStream.onNext(request);
+
 
         System.out.println(".........?");
         System.in.read();

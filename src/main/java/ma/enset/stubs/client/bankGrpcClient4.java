@@ -25,6 +25,8 @@ public class bankGrpcClient4 {
                 .setAmount(100)
                 .build();
 
+
+
         StreamObserver<Bank.convertCurrencyRequest> performStream = asyncStub.performSteam(new StreamObserver<Bank.convertCurrencyResponse>() {
             @Override
             public void onNext(Bank.convertCurrencyResponse convertCurrencyResponse) {
@@ -46,6 +48,8 @@ public class bankGrpcClient4 {
                 System.out.println("************");
             }
         });
+
+        // here comes the difference, we are using a timer to send 10 requests
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
